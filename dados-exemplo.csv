@@ -1,0 +1,6 @@
+pedido_id,nome,email,produto,valor,status_pagamento,criado_em,tentativa_registrada,mensagem_ia,recuperado
+1001,João,joao@example.com,Curso de Marketing,297,PAGO,2026-11-12 10:00:00,SIM,Mensagem de exemplo para João,SIM
+1002,Maria,maria@example.com,Curso de Design,197,PAGO,2026-11-12 10:30:00,NAO,,NAO
+1003,Pedro,pedro@example.com,Curso de Programação,497,PENDENTE,2026-11-12 11:00:00,SIM,Mensagem simulada anteriormente,NAO
+1004,Ana,ana@example.com,Curso de Vendas,147,CANCELADO,2026-11-12 11:30:00,NAO,,NAO
+1005,Lucas,lucas@example.com,Curso de Excel,397,PENDENTE,2026-11-12 12:00:00,NAO,,NAO
