@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Teste a regra de recuperação de vendas do RecuperaAI com um pedido fictício.">
+  <meta name="theme-color" content="#132238">
+  <title>RecuperaAI — Demo de recuperação</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --navy: #132238;
+      --ink: #16243b;
+      --muted: #4d6078;
+      --line: #dce4ee;
+      --accent: #1749ca;
+      --surface: #fff;
+      --ground: #f2f5fa;
+      --radius: 16px;
+      font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--ground); line-height: 1.5; }
+    .wrap { width: min(1100px, calc(100% - 64px)); margin-inline: auto; }
+    .masthead { background: var(--navy); color: white; }
+    .bar { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .wordmark { display: flex; align-items: center; gap: 11px; font-size: 1.125rem; font-weight: 750; letter-spacing: -.03em; }
+    .brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #c9f5e3; color: #084e3b; font-size: 1.28rem; }
+    .masthead a { color: #e0eafa; text-underline-offset: 4px; font-size: .875rem; }
+    main { padding-block: 40px 36px; }
+    h1, h2, p { margin: 0; }
+    h1 { margin-bottom: 8px; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.1; letter-spacing: -.055em; }
+    h2 { font-size: 1.12rem; letter-spacing: -.018em; }
+    .intro { max-width: 67ch; color: var(--muted); }
+    .layout { display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; margin-top: 28px; align-items: start; }
+    .stack { display: grid; gap: 18px; }
+    .card { min-width: 0; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 5px 16px #142f5310; }
+    .card-head, .clock-head, .history-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .tag { padding: 4px 10px; border-radius: 30px; background: #fff1ce; color: #725009; font-weight: 700; font-size: .78rem; }
+    .tag.paid { background: #ddf6e9; color: #12563f; }
+    dl { margin: 16px 0 0; }
+    .order { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 12px; }
+    dt { color: var(--muted); font-size: .81rem; }
+    dd { margin: 3px 0 0; font-weight: 650; }
+    .clock { margin-top: 20px; padding: 14px 16px; background: #f1f5fd; border-radius: 10px; }
+    .clock-head strong { font-variant-numeric: tabular-nums; color: var(--accent); }
+    progress { display: block; width: 100%; height: 8px; margin: 10px 0 5px; border: 0; border-radius: 12px; overflow: hidden; background: #d9e3f3; }
+    progress::-webkit-progress-bar { background: #d9e3f3; }
+    progress::-webkit-progress-value { background: #2f5cd9; }
+    progress::-moz-progress-bar { background: #2f5cd9; }
+    .caption, .note { color: var(--muted); font-size: .81rem; }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+    button { min-height: 45px; padding: 9px 11px; border: 1px solid #c8d4e5; border-radius: 8px; font: inherit; font-size: .875rem; font-weight: 700; color: var(--ink); background: white; cursor: pointer; }
+    button:hover:not(:disabled) { background: #edf2fb; }
+    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.primary:hover { background: #123aa2; }
+    button:disabled { cursor: default; color: #667991; background: #eff3f8; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #537cf0; outline-offset: 3px; }
+    .feedback { margin-top: 16px; padding: 11px 13px; border-left: 3px solid #8c9fb8; border-radius: 5px; background: #f2f5f9; font-size: .91rem; }
+    .feedback[data-tone="success"] { border-color: #228062; background: #eaf8f1; }
+    .feedback[data-tone="wait"] { border-color: #b47a17; background: #fff7e4; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .metric { min-width: 0; padding: 10px; border-radius: 9px; background: #f2f5fa; }
+    .metric dd { font-size: clamp(1rem, 2vw, 1.45rem); letter-spacing: -.045em; white-space: nowrap; }
+    .metric:last-child dd { color: #12624a; }
+    .message { margin-top: 17px; padding-top: 14px; border-top: 1px solid var(--line); }
+    .message h2 { font-size: .94rem; margin-bottom: 5px; }
+    .message p { color: var(--muted); font-size: .88rem; }
+    ol { padding: 0; margin: 12px 0 0; list-style: none; max-height: 210px; overflow: auto; }
+    li { display: grid; grid-template-columns: 56px 1fr; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: .875rem; }
+    li:last-child { border-bottom: 0; }
+    li span { color: var(--muted); font-size: .81rem; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 18px; }
+    @media (max-width: 840px) { .layout { grid-template-columns: 1fr; } .metric dd { font-size: 1.35rem; } }
+    @media (max-width: 480px) {
+      .wrap { width: calc(100% - 28px); }
+      main { padding-block: 27px; }
+      .card { padding: 16px; }
+      .order, .metrics { gap: 6px; }
+      .metric { padding: 7px; }
+      .metric dd { font-size: 1.07rem; }
+      .metric dt { font-size: .73rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap bar">
+      <span class="wordmark"><span class="brand-mark" aria-hidden="true">↻</span>RecuperaAI</span>
+      <a href="https://github.com/qedrohenrique-ui/recuperaai">Ver no GitHub</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <h1>Simulação de recuperação</h1>
+    <p class="intro">Verifique o pedido do Lucas, avance o relógio e acompanhe o que acontece antes e depois dos 30 minutos.</p>
+
+    <div class="layout">
+      <section class="card" aria-labelledby="order-title">
+        <div class="card-head">
+          <h2 id="order-title">Pedido #1005</h2>
+          <span class="tag" id="order-status">Pendente</span>
+        </div>
+        <dl class="order">
+          <div><dt>Cliente fictício</dt><dd>Lucas</dd></div>
+          <div><dt>Produto</dt><dd>Curso de Excel</dd></div>
+          <div><dt>Valor do pedido</dt><dd>R$ 397,00</dd></div>
+        </dl>
+
+        <div class="clock">
+          <div class="clock-head"><span>Tempo desde a compra iniciada</span><strong id="age">25 min</strong></div>
+          <progress id="threshold" max="30" value="25" aria-label="Tempo de espera até a primeira tentativa"></progress>
+          <p class="caption">A primeira tentativa fica elegível a partir de 30 minutos.</p>
+        </div>
+
+        <div class="controls">
+          <button type="button" class="primary" id="verify">Verificar pedido</button>
+          <button type="button" id="advance">Avançar 10 min</button>
+          <button type="button" id="pay">Simular pagamento</button>
+          <button type="button" id="reset">Reiniciar teste</button>
+        </div>
+        <p class="feedback" id="feedback" role="status">Clique em Verificar pedido para começar.</p>
+      </section>
+
+      <div class="stack">
+        <section class="card" aria-labelledby="result-title">
+          <h2 id="result-title">Resultado da simulação</h2>
+          <dl class="metrics">
+            <div class="metric"><dt>Tentativas</dt><dd id="attempts">0</dd></div>
+            <div class="metric"><dt>Vendas recuperadas</dt><dd id="sales">0</dd></div>
+            <div class="metric"><dt>Receita recuperada</dt><dd id="revenue">R$ 0,00</dd></div>
+          </dl>
+          <div class="message">
+            <h2>Mensagem de exemplo</h2>
+            <p id="message">A mensagem aparece após a primeira tentativa simulada.</p>
+          </div>
+        </section>
+        <section class="card" aria-labelledby="history-title">
+          <div class="history-head"><h2 id="history-title">Histórico do pedido</h2></div>
+          <ol id="history"></ol>
+        </section>
+      </div>
+    </div>
+    <footer class="note">Dados fictícios. A demo roda no navegador, com mensagem de exemplo e pagamento simulado.</footer>
+  </main>
+  <script>
+    'use strict';
+
+    const minAge = 30;
+    const orderValue = 397;
+    const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+    const exampleMessage = 'Olá, Lucas! Você iniciou a compra do Curso de Excel. Ficou alguma dúvida sobre o curso ou sobre como concluir o pagamento? Posso ajudar.';
+    const byId = (id) => document.getElementById(id);
+    const historyList = byId('history');
+    const feedback = byId('feedback');
+    const orderStatus = byId('order-status');
+    let order;
+
+    function render() {
+      orderStatus.textContent = order.paid ? 'Pago' : 'Pendente';
+      orderStatus.classList.toggle('paid', order.paid);
+      byId('age').textContent = order.age + ' min';
+      byId('threshold').value = Math.min(order.age, minAge);
+      byId('attempts').textContent = order.attempted ? '1' : '0';
+      byId('sales').textContent = order.recovered ? '1' : '0';
+      byId('revenue').textContent = brl.format(order.recovered ? orderValue : 0);
+      byId('message').textContent = order.attempted ? exampleMessage : 'A mensagem aparece após a primeira tentativa simulada.';
+      byId('pay').disabled = order.paid;
+    }
+
+    function logEvent(text) {
+      const item = document.createElement('li');
+      const time = document.createElement('span');
+      time.textContent = order.age + ' min';
+      item.append(time, document.createTextNode(text));
+      historyList.prepend(item);
+    }
+
+    function report(text, tone = 'neutral') {
+      render();
+      feedback.textContent = text;
+      feedback.dataset.tone = tone;
+      logEvent(text);
+    }
+
+    function verifyOrder() {
+      if (order.paid) {
+        report('Pedido pulado. O pagamento já foi confirmado.');
+        return;
+      }
+      if (order.attempted) {
+        report('Pedido pulado. Já existe uma tentativa registrada.');
+        return;
+      }
+      if (order.age < minAge) {
+        report('Aguardando. Faltam ' + (minAge - order.age) + ' minutos para a primeira tentativa.', 'wait');
+        return;
+      }
+      order.attempted = true;
+      report('Tentativa simulada registrada. Veja a mensagem de exemplo.', 'success');
+    }
+
+    function simulatePayment() {
+      if (order.paid) return;
+      order.paid = true;
+      order.recovered = order.attempted;
+      report(order.recovered
+        ? 'Pagamento simulado após a tentativa. Venda registrada como recuperada.'
+        : 'Pagamento simulado antes de qualquer tentativa. O pedido saiu da fila.', 'success');
+    }
+
+    function resetDemo() {
+      order = { age: 25, paid: false, attempted: false, recovered: false };
+      historyList.replaceChildren();
+      render();
+      feedback.textContent = 'Clique em Verificar pedido para começar.';
+      feedback.dataset.tone = 'neutral';
+      logEvent('Pedido pendente carregado.');
+    }
+
+    byId('verify').addEventListener('click', verifyOrder);
+    byId('advance').addEventListener('click', () => {
+      order.age += 10;
+      report('Relógio avançado. Verifique o pedido para aplicar a regra.');
+    });
+    byId('pay').addEventListener('click', simulatePayment);
+    byId('reset').addEventListener('click', resetDemo);
+    resetDemo();
+  </script>
+</body>
+</html>
