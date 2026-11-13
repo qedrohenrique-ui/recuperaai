@@ -1,5 +1,7 @@
 # RecuperaAI
 
+**Testar a demo interativa** https://qedrohenrique-ui.github.io/recuperaai/
+
 Automação de recuperação de vendas para uma operação fictícia de cursos online. O fluxo seleciona pedidos pendentes, gera uma mensagem personalizada com o Gemini e registra a tentativa simulada no Google Sheets. Um painel acompanha os pedidos e os resultados da simulação.
 
 ![Dashboard com cinco pedidos, uma venda recuperada e R$ 297 de receita simulada](assets/dashboard.png)
